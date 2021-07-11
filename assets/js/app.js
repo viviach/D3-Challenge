@@ -2,14 +2,20 @@ function responsive(){
 
 // Step 1: Set up our chart
 //=================================
-    var svgWidth = 970;
-    var svgHeight = 500;
+    var svgArea = d3.select("body").select("svg");
+
+    if (!svgArea.empty()) {
+    svgArea.remove();
+    }
+
+    var svgWidth = 900;
+    var svgHeight = 600;
 
     var margin = {
-    top: 20,
+    top: 30,
     right: 40,
-    bottom: 60,
-    left: 50
+    bottom: 100,
+    left: 60
     };
 
     var width = svgWidth - margin.left - margin.right;
@@ -30,12 +36,11 @@ function responsive(){
 
 
 // Step 3:
-// Import data from the donuts.csv file
+// Import data from the data.csv file
 // =================================
     d3.csv("./assets/data/data.csv").then(function(data) {
-
         console.log(data);
-    
+
     // Format the data
         data.abbr = data.map(data => data.abbr);  
         data.forEach(function(data) {
@@ -64,10 +69,8 @@ function responsive(){
     chartGroup.append("g")
         .attr("transform", `translate(0, ${height})`)
         .call(bottomAxis);
-
     // Add y-axis
     chartGroup.append("g").call(leftAxis);
-
 
     // Step 5: Create Circles
     // ==============================
@@ -79,7 +82,42 @@ function responsive(){
         .attr("cy", d => yLinearScale(d.healthcare))
         .attr("r", "15")
         .attr("fill", "green")
-        .attr("opacity", ".5");
+        .attr("opacity", ".5")
+        // .append("text")
+        // .attr("x", "50%")
+        // .attr("y", "50%")
+        // .attr("text-anchor", "middle")
+        // .attr("fill", "white")
+        // .attr("font-size", "10px")
+        // .html(function(d) {
+        //     return (`>${d.abbr}`)
+        // });
+
+
+    // Create axes labels
+  // Append x-axes titles
+  chartGroup.append("text")
+    .attr("transform", `translate(${width / 2}, ${height + margin.top + 20})`)
+    .classed("pov-text text", true)
+    .text("In Poverty(%)");
+    
+  function handleMouseOver(d, i) {       
+        d3.select(this).transition()
+            .duration(1)
+            .attr("cx", d => xLinearScale(d.poverty))
+            .attr("cy", d => yLinearScale(d.healthcare));
+    }
+    
+
+    // Append y-axes titles
+   chartGroup.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left+5)
+    .attr("x", 0 - (height / 2))
+    .attr("dy", "1em")
+    .attr("class", "healthcare-text")
+    .text("Lacks of HealthCare (%)");
+
 
 
     }).catch(function(error) {
